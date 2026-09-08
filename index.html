@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS180: Project 1 - Colorizing the Prokudin-Gorskii Photo Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-glow: rgba(56, 189, 248, 0.4);
+            --accent: #38bdf8;
+            --gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --border-radius: 16px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            padding: 40px 20px;
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 70px;
+            padding-top: 40px;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+            line-height: 1.2;
+        }
+
+        header h2 {
+            font-size: 1.4rem;
+            color: var(--text-muted);
+            font-weight: 300;
+            margin-top: 20px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 50px;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        h2.section-title {
+            margin-top: 0;
+            color: var(--text-main);
+            font-size: 2rem;
+            font-weight: 600;
+            display: inline-block;
+            border-bottom: 3px solid transparent;
+            border-image: var(--gradient);
+            border-image-slice: 1;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 40px;
+            margin: 40px 0;
+        }
+        
+        .image-grid.large-grid {
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        }
+
+        .image-box {
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.02);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-box h3 {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        
+        .offset-info {
+            font-family: monospace;
+            background: rgba(0,0,0,0.4);
+            padding: 8px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        
+        .offset-info span.g { color: #4ade80; }
+        .offset-info span.r { color: #f87171; }
+
+        .image-box img {
+            max-width: 100%;
+            max-height: 500px;
+            width: auto;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .image-box img:hover {
+            transform: scale(1.02);
+        }
+
+        .explanation {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            border-left: 4px solid var(--accent);
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <header>
+            <h1>Bringing 1907 Back to Life</h1>
+            <h2>Colorizing the Prokudin-Gorskii Photo Collection <br> <strong>By Sherman Chan</strong></h2>
+        </header>
+        
+        <div class="card">
+            <h2 class="section-title">The Magic of Early Photography</h2>
+            <div style="display: flex; gap: 40px; align-items: flex-start;">
+                <div style="flex: 1;">
+                    <p>Imagine it's 1907. Color photography hasn't really been invented yet, but Sergei Prokudin-Gorskii has a brilliant idea: what if he takes three black-and-white photos of the exact same scene, but puts a Blue, Green, and Red glass filter over his lens for each one?</p>
+                    <p>He captured all three of these exposures onto one single, tall, grey glass plate (like the one shown here). From top to bottom, they represent the Blue, Green, and Red color channels.</p>
+                    <p>If you project those three photos on top of each other using colored lights, you get a full-color image! The only problem? Because he took the photos one after another, the camera (or the people in the photo) shifted slightly between shots. If we just stack them directly, the result is a blurry, misaligned mess.</p>
+                    <p>In this project, I wrote a Python algorithm to automatically slice these glass plates into thirds and slide the separate color channels around until they perfectly align, bringing these 100-year-old photos back to life.</p>
+                </div>
+                <div style="flex: 0 0 200px; text-align: center;">
+                    <img src="CS180_fa2026_proj1_data/cathedral.jpg" alt="Raw Glass Plate" style="max-width: 100%; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <p style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted);">The raw glass plate (Top: Blue, Middle: Green, Bottom: Red)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">Step 1: The Brute Force Approach</h2>
+            <p>For the smaller, low-resolution JPEG images, the solution is fairly simple: <strong>Exhaustive Search</strong>. I sliced the raw glass plate image into three horizontal pieces (Blue, Green, Red). Keeping the Blue channel stationary, the algorithm takes the Green channel and tests shifting it in every single direction within a <strong>[-15, 15] pixel window</strong>.</p>
+            <p>To grade how well a shift aligns, I used the <strong>Normalized Cross-Correlation (NCC)</strong> metric. Unlike a simple subtraction (L2 norm), NCC normalizes the brightness of the images, meaning a naturally dark red channel can still mathematically match a bright blue channel. Whichever shift produces the highest NCC score wins!</p>
+            
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Cathedral (Raw Glass Plate)</h3>
+                    <img src="output_images/cathedral_raw.jpg" alt="Cathedral Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Cathedral (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=2, dy=5</span> | <span class="r">R: dx=3, dy=12</span></div>
+                    <img src="output_images/colorized_cathedral.jpg" alt="Cathedral Aligned">
+                </div>
+            </div>
+
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Monastery (Raw Glass Plate)</h3>
+                    <img src="output_images/monastery_raw.jpg" alt="Monastery Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Monastery (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=2, dy=-3</span> | <span class="r">R: dx=2, dy=3</span></div>
+                    <img src="output_images/colorized_monastery.jpg" alt="Monastery">
+                </div>
+            </div>
+
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Tobolsk (Raw Glass Plate)</h3>
+                    <img src="output_images/tobolsk_raw.jpg" alt="Tobolsk Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Tobolsk (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=3, dy=3</span> | <span class="r">R: dx=3, dy=6</span></div>
+                    <img src="output_images/colorized_tobolsk.jpg" alt="Tobolsk">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">Step 2: When Things Get Too Big</h2>
+            <p>While exhaustive search works great for small images, the high-resolution TIFF files are massive—often over 3,000 pixels wide. Searching over a massive 150-pixel radius pixel-by-pixel would take hours per image.</p>
+            <p>To solve this, I built an <strong>Image Pyramid</strong>. The algorithm shrinks the massive image in half recursively until it is just a tiny thumbnail. It runs the exhaustive search on the thumbnail (which takes milliseconds), finds a rough alignment, and then scales that guess back up to the larger image, doing a tiny <strong>[-2, 2]</strong> pixel search to refine it. This "coarse-to-fine" strategy aligned 70MB files in just seconds!</p>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">The Elephant in the Room: The Emir</h2>
+            <p>Almost every basic algorithm fails on one specific image: <em>The Emir of Bukhara</em>. If you use standard pixel-matching, you get the blurry, misaligned mess on the left. Why?</p>
+            <p>Because the Emir's blue robes are incredibly bright in the Blue filter, but pitch black in the Red filter! The algorithm gets confused trying to match white pixels to black pixels.</p>
+            
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Before (Failed Vanilla Alignment)</h3>
+                    <img src="output_images/emir_before.jpg" alt="Emir Before">
+                    <p style="margin-top:10px; font-size:0.9rem;">The algorithm fails to match the brightness differences.</p>
+                </div>
+                <div class="image-box">
+                    <h3>After (Edge-Based Alignment)</h3>
+                    <img src="output_images/colorized_emir.jpg" alt="Emir After">
+                    <p style="margin-top:10px; font-size:0.9rem;">Perfectly aligned using Sobel edge detection!</p>
+                </div>
+            </div>
+
+            <div class="explanation">
+                <p><strong>The Fix (Bells & Whistles):</strong> Instead of aligning raw colors, I ran the images through a <strong>Sobel Filter</strong> to extract the <em>edges</em>. Even if the robes change color, the <em>outline</em> of the robes remains identical across all channels. By aligning the edges instead of the colors, my algorithm successfully aligned the Emir (and every other image) perfectly!</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">Sprinkling Some Magic (More Bells & Whistles)</h2>
+            <p>Just aligning the images wasn't enough—I wanted them to look like professional restorations. Notice how vibrant the "After" image of the Emir looks above compared to the dull "Before" image? I implemented three automatic post-processing tricks:</p>
+            <ul>
+                <li><strong>Automatic Cropping:</strong> The glass plates have messy borders that create ugly colored banding. The algorithm detects and trims 5% off the edges for a clean frame.</li>
+                <li><strong>Automatic Contrasting:</strong> Old photos look washed out. The algorithm finds the darkest 1% of pixels and forces them to pure black, and the brightest 1% to pure white, dynamically stretching the contrast.</li>
+                <li><strong>Automatic White Balance:</strong> To remove the old yellow tinting, I used the <em>Gray World Assumption</em>. By mathematically forcing the average brightness of the Red, Green, and Blue channels to be equal, the colors immediately look natural to the modern eye.</li>
+            </ul>
+            
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr; margin-top: 40px;">
+                <div class="image-box">
+                    <h3>Icon (Before Post-Processing)</h3>
+                    <img src="output_images/icon_before.jpg" alt="Icon Before">
+                    <p style="margin-top:10px; font-size:0.9rem;">Washed out contrast, ugly uncropped borders, and an old yellow tint.</p>
+                </div>
+                <div class="image-box">
+                    <h3>Icon (After Post-Processing)</h3>
+                    <img src="output_images/colorized_icon.jpg" alt="Icon After">
+                    <p style="margin-top:10px; font-size:0.9rem;">Borders cropped cleanly, dynamic contrast stretched, and white-balanced!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">The Final High-Res Gallery</h2>
+            <p>Here are the final, perfectly aligned, contrast-stretched, and white-balanced results for all the high-resolution images, processed automatically by the Image Pyramid.</p>
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Church (Raw Glass Plate)</h3>
+                    <img src="output_images/church_raw.jpg" alt="Church Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Church (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=4, dy=25</span> | <span class="r">R: dx=-4, dy=58</span></div>
+                    <img src="output_images/colorized_church.jpg" alt="Church">
+                </div>
+            </div>
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Harvesters (Raw Glass Plate)</h3>
+                    <img src="output_images/harvesters_raw.jpg" alt="Harvesters Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Harvesters (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=17, dy=60</span> | <span class="r">R: dx=14, dy=124</span></div>
+                    <img src="output_images/colorized_harvesters.jpg" alt="Harvesters">
+                </div>
+            </div>
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Icon (Raw Glass Plate)</h3>
+                    <img src="output_images/icon_raw.jpg" alt="Icon Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Icon (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=17, dy=42</span> | <span class="r">R: dx=23, dy=90</span></div>
+                    <img src="output_images/colorized_icon.jpg" alt="Icon">
+                </div>
+            </div>
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Ilemselga (Raw Glass Plate)</h3>
+                    <img src="output_images/ilemselga_raw.jpg" alt="Ilemselga Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Ilemselga (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=7, dy=40</span> | <span class="r">R: dx=11, dy=131</span></div>
+                    <img src="output_images/colorized_ilemselga.jpg" alt="Ilemselga">
+                </div>
+            </div>
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Melons (Raw Glass Plate)</h3>
+                    <img src="output_images/melons_raw.jpg" alt="Melons Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Melons (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=10, dy=80</span> | <span class="r">R: dx=13, dy=177</span></div>
+                    <img src="output_images/colorized_melons.jpg" alt="Melons">
+                </div>
+            </div>
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Religious Painting (Raw Glass Plate)</h3>
+                    <img src="output_images/religous_painting_raw.jpg" alt="Religious Painting Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Religious Painting (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=7, dy=30</span> | <span class="r">R: dx=6, dy=70</span></div>
+                    <img src="output_images/colorized_religous_painting.jpg" alt="Religious Painting">
+                </div>
+            </div>
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Self Portrait (Raw Glass Plate)</h3>
+                    <img src="output_images/self_portrait_raw.jpg" alt="Self Portrait Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Self Portrait (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=29, dy=78</span> | <span class="r">R: dx=37, dy=176</span></div>
+                    <img src="output_images/colorized_self_portrait.jpg" alt="Self Portrait">
+                </div>
+            </div>
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Siren (Raw Glass Plate)</h3>
+                    <img src="output_images/siren_raw.jpg" alt="Siren Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Siren (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=-6, dy=49</span> | <span class="r">R: dx=-24, dy=96</span></div>
+                    <img src="output_images/colorized_siren.jpg" alt="Siren">
+                </div>
+            </div>
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Three Generations (Raw Glass Plate)</h3>
+                    <img src="output_images/three_generations_raw.jpg" alt="Three Generations Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Three Generations (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=12, dy=54</span> | <span class="r">R: dx=9, dy=111</span></div>
+                    <img src="output_images/colorized_three_generations.jpg" alt="Three Generations">
+                </div>
+            </div>
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Wharf (Raw Glass Plate)</h3>
+                    <img src="output_images/wharf_raw.jpg" alt="Wharf Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Wharf (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=-7, dy=15</span> | <span class="r">R: dx=-16, dy=83</span></div>
+                    <img src="output_images/colorized_wharf.jpg" alt="Wharf">
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">Custom Images from the Collection</h2>
+            <p>I dug into the Library of Congress archives and selected three additional high-resolution glass plate negatives of my own choosing. Our Image Pyramid algorithm successfully aligned and colorized these custom selections.</p>
+            
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Kurmy (Raw Glass Plate)</h3>
+                    <img src="output_images/kurmy_raw.jpg" alt="Kurmy Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Kurmy (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=-18, dy=25</span> | <span class="r">R: dx=-38, dy=116</span></div>
+                    <img src="output_images/colorized_kurmy.jpg" alt="Kurmy">
+                </div>
+            </div>
+            
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>Napoleon (Raw Glass Plate)</h3>
+                    <img src="output_images/napeloen_raw.jpg" alt="Napoleon Raw">
+                </div>
+                <div class="image-box">
+                    <h3>Napoleon (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=4, dy=63</span> | <span class="r">R: dx=-1, dy=132</span></div>
+                    <img src="output_images/colorized_napeloen.jpg" alt="Napoleon">
+                </div>
+            </div>
+
+            <div class="image-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="image-box">
+                    <h3>V Iltay (Raw Glass Plate)</h3>
+                    <img src="output_images/v iltay_raw.jpg" alt="V Iltay Raw">
+                </div>
+                <div class="image-box">
+                    <h3>V Iltay (Restored)</h3>
+                    <div class="offset-info"><span class="g">G: dx=22, dy=38</span> | <span class="r">R: dx=36, dy=77</span></div>
+                    <img src="output_images/colorized_v iltay.jpg" alt="V Iltay">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
